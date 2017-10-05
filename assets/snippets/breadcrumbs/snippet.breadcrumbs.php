@@ -55,24 +55,23 @@ else
 {
     $document = $modx->documentObject;
 }
-$breadcrumbPath = dirname(__FILE__)."/";
-$templates = array();
-if(is_file($breadcrumbPath.$templateSet.".inc.php")){
-	include_once($breadcrumbPath.$templateSet.".inc.php");
-}else{
-	$templateSet = 'defaultString';
-	$templates = array(
-		'defaultString' => array(
-			'crumb' => '[+crumb+]',
-			'separator' => ' '.$separator.' ',
-			'crumbContainer' => '<span class="[+crumbBoxClass+]">[+crumbs+]</span>',
-			'lastCrumbWrapper' => '<span class="[+lastCrumbClass+]">[+lastCrumbSpanA+]</span>',
-			'firstCrumbWrapper' => '<span class="[+firstCrumbClass+]">[+firstCrumbSpanA+]</span>',
-			'crumbLink'=>'<a class="[+crumbClass+]" href="[+link+]" title="[+title+]">[+text+]</a>',
-			'crumbSpan'=>'<span class="">[+text+]</span>'
-		)
-	);
-}
+
+$templates = array(
+    'defaultString' => array(
+        'crumb' => '[+crumb+]',
+        'separator' => ' '.$separator.' ',
+        'crumbContainer' => '<span class="[+crumbBoxClass+]">[+crumbs+]</span>',
+        'lastCrumbWrapper' => '<span class="[+lastCrumbClass+]">[+lastCrumbSpanA+]</span>',
+        'firstCrumbWrapper' => '<span class="[+firstCrumbClass+]">[+firstCrumbSpanA+]</span>'
+    ),
+    'defaultList' => array(
+        'crumb' => '<li>[+crumb+]</li>',
+        'separator' => '',
+        'crumbContainer' => '<ul class="[+crumbBoxClass+]">[+crumbs+]</ul>',
+        'lastCrumbWrapper' => '<span class="[+lastCrumbClass+]">[+lastCrumbSpanA+]</span>',
+        'firstCrumbWrapper' => '<span class="[+firstCrumbClass+]">[+firstCrumbSpanA+]</span>'
+    ),
+);
 // Return blank if necessary: on home page
 if ( !$showCrumbsAtHome && $homeId == $document['id'] )
 {
@@ -264,22 +263,13 @@ foreach ( $crumbs as $c )
             }
         }
 
-		$href = ($c['id'] == $modx->config['site_start'] ? $modx->config['base_url'] : $modx->makeUrl($c['id']));
-		//'<a class="[+crumbClass+]" href="[+link+]" title="[+title+]">[+text+]</a>'
-		$pretemplateCrumb .= str_replace(
-			array('[+crumbClass+]','[+href+]','[+title+]','[+text+]'),
-			array($crumbClass,$href,$title,$text),
-			$templates[$templateSet]['crumbLink']
-		);
+
+        $pretemplateCrumb .= '<a class="'.$crumbClass.'" href="'.($c['id'] == $modx->config['site_start'] ? $modx->config['base_url'] : $modx->makeUrl($c['id'])).'" title="'.$title.'">'.$text.'</a>';
     }
     else
     // Make a span instead of a link
     {
-		$pretemplateCrumb .= str_replace(
-			array('[+crumbClass+]','[+text+]'),
-			array($crumbClass, $text),
-			$templates[$templateSet]['crumbSpan']
-		);
+       $pretemplateCrumb .= '<span class="'.$crumbClass.'">'.$text.'</span>';
     }
 
     // Add crumb to pretemplate crumb array
@@ -291,11 +281,7 @@ foreach ( $crumbs as $c )
         if ( count($crumbs) > ($maxCrumbs + (($showHomeCrumb) ? 1 : 0)) )
         {
             // Add gap
-			$pretemplateCrumbs[] = str_replace(
-				array('[+crumbClass+]','[+text+]'),
-				array($stylePrefix.'hideCrumb', $crumbGap),
-				$templates[$templateSet]['crumbSpan']
-			);
+            $pretemplateCrumbs[] = '<span class="'.$stylePrefix.'hideCrumb'.'">'.$crumbGap.'</span>';
         }
 
         // Stop here if we're not looking for the home crumb
